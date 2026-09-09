@@ -1,0 +1,18 @@
+# Keep only README.md as documentation (no other markdown files in the repo)
+*.md
+!README.md
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs / tmp
+*.log
+.tmp/
