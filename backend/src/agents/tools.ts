@@ -4,7 +4,7 @@ import mongoose, { Types } from "mongoose";
 import z from "zod";
 import { autotagContent, summarizeContent } from "../services/aiService";
 
-const CONTENT_TYPES = ["tweet", "video", "doc", "link", "tag"] as const;
+const CONTENT_TYPES = ["tweet", "video", "doc", "link", "tag", "note"] as const;
 
 const ofOk = (data: unknown): AgentToolResult => ({ ok: true, data });
 const ofErr = (error: string): AgentToolResult => ({ ok: false, error });
@@ -62,7 +62,7 @@ export const brainSearchTool: AgentToolDef = {
         const filter: Record<string, any> = { userId: new Types.ObjectId(userId) };
 
         if (type && (CONTENT_TYPES as readonly string[]).includes(type)) filter.type = type;
-        if (tag) filter.tag = tag;
+        if (tag) filter.tags = { $in: [tag] };
         try {
             const docs = q ? scoredByTokens(await Content.find(filter).limit(200), q) : await Content.find(filter).sort({ createdAt: -1 }).limit(limit);
             return ofOk({ items: docs.slice(0, limit).map(itemToDo) });
@@ -214,7 +214,7 @@ export const summarizeItemTool: AgentToolDef = {
 
 export const autotagItemTool : AgentToolDef ={
     name: "autotag_item",
-    description: "Summarize a saved item by id. Returns a 2-3 sentence plain-text summary.",
+    description: "Suggest tags for a saved item by id. Returns 3-6 suggested lowercase tags.",
     parameters: z.object({id: z.string().min(1)}),
     execute: async(userId: string, args: Record<string, unknown>):Promise<AgentToolResult> =>{
         try {
@@ -260,7 +260,7 @@ export const saveItemTool: AgentToolDef = {
         try {
             if(linkHash){
                 const duplicate = await Content.findOne({userId: new Types.ObjectId(userId), linkHash});
-                if(duplicate) return ofErr(`"A similar link is already saved: "${duplicate.title} `);
+                if(duplicate) return ofErr(`A similar link is already saved: "${duplicate.title}"`);
             }
 
             const data: {
@@ -303,6 +303,6 @@ export const runTool = async (
     args: Record<string, unknown>
 ):Promise<AgentToolResult> =>{
     const t = AGENT_TOOLS[name];
-    if(!t) return ofErr(`"Unknown tool: ${name}`);
+    if(!t) return ofErr(`Unknown tool: ${name}`);
     return t.execute(userId, args);
 };

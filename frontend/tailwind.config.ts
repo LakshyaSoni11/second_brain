@@ -2,21 +2,21 @@ import type { Config } from "tailwindcss";
 
 export default {
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: "#f0f4ff",
-          100: "#e0e9fe",
-          500: "#6366f1",
-          600: "#4f46e5",
-          700: "#4338ca",
-          900: "#1e1b4b",
-        },
-        dark: {
-          800: "#1a1a2e",
-          900: "#0f0f1a",
-        },
+        bg: "var(--bg)",
+        surface: "var(--surface)",
+        "surface-hover": "var(--surface-hover)",
+        border: "var(--border)",
+        "border-strong": "var(--border-strong)",
+        text: "var(--text)",
+        "text-muted": "var(--text-muted)",
+        "text-faint": "var(--text-faint)",
+        accent: "var(--accent)",
+        "accent-hover": "var(--accent-hover)",
+        "accent-text": "var(--accent-text)",
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],

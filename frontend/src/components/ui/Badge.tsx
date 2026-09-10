@@ -7,10 +7,10 @@ interface BadgeProps {
 }
 
 const colors: Record<NonNullable<BadgeProps["color"]>, string> = {
-  indigo: "bg-indigo-500/20 border-indigo-500/30 text-indigo-300",
-  green: "bg-green-500/20 border-green-500/30 text-green-400",
-  red: "bg-red-500/20 border-red-500/30 text-red-400",
-  gray: "bg-white/10 border-white/10 text-gray-400",
+  indigo: "bg-accent/10 border-accent/20 text-accent",
+  green: "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400",
+  red: "bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400",
+  gray: "bg-surface border border-border text-text-muted",
 };
 
 export const Badge: React.FC<BadgeProps> = ({ children, color = "indigo", className = "" }) => {

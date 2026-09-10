@@ -11,7 +11,7 @@ interface ShareModalProps {
 }
 
 const inputCls =
-  "w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-sm";
+  "w-full bg-surface border border-border rounded-xl px-3 py-2 text-text placeholder-text-faint focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-sm";
 
 export const ShareModal: React.FC<ShareModalProps> = ({ shareData, onSaved, onClose }) => {
   const [enabled, setEnabled] = useState(shareData.isShared);
@@ -51,7 +51,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ shareData, onSaved, onCl
   return (
     <Modal open onClose={onClose} title="Share your brain">
       {error && (
-        <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm break-words">
+        <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-sm break-words">
           {error}
         </div>
       )}
@@ -59,17 +59,17 @@ export const ShareModal: React.FC<ShareModalProps> = ({ shareData, onSaved, onCl
       <div className="space-y-4">
         <label className="flex items-center justify-between gap-3 cursor-pointer">
           <div>
-            <p className="text-sm font-medium text-white">Public share link</p>
-            <p className="text-xs text-gray-500">Anyone with the link can read your saved items.</p>
+            <p className="text-sm font-medium text-text">Public share link</p>
+            <p className="text-xs text-text-faint">Anyone with the link can read your saved items.</p>
           </div>
           <button
             type="button"
             role="switch"
             aria-checked={enabled}
             onClick={() => setEnabled((v) => !v)}
-            className={`relative w-11 h-6 rounded-full transition-all ${enabled ? "bg-indigo-500" : "bg-white/10"}`}
+            className={`relative w-11 h-6 rounded-full transition-all ${enabled ? "bg-accent" : "bg-border-strong"}`}
           >
-            <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${enabled ? "left-[22px]" : "left-0.5"}`} />
+            <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-bg transition-all ${enabled ? "left-[22px]" : "left-0.5"}`} />
           </button>
         </label>
 
@@ -77,22 +77,22 @@ export const ShareModal: React.FC<ShareModalProps> = ({ shareData, onSaved, onCl
           <>
             {shareData.shareLink && (
               <div className="flex items-center gap-2">
-                <input readOnly value={shareData.shareLink} className={`${inputCls} flex-1 min-w-0 text-xs text-gray-300`} />
+                <input readOnly value={shareData.shareLink} className={`${inputCls} flex-1 min-w-0 text-xs text-text-muted`} />
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="px-3 py-2 rounded-xl glass border-white/20 text-gray-300 hover:bg-white/10 transition-all"
+                  className="px-3 py-2 rounded-xl bg-surface border border-border text-text-muted hover:bg-surface-hover transition-all"
                   aria-label="Copy link"
                 >
-                  {copied ? <Check size={15} className="text-green-400" /> : <Copy size={15} />}
+                  {copied ? <Check size={15} className="text-accent" /> : <Copy size={15} />}
                 </button>
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5">Custom link (optional)</label>
+              <label className="block text-xs font-medium text-text-muted mb-1.5">Custom link (optional)</label>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600 shrink-0 select-none">{window.location.origin}/brain/</span>
+                <span className="text-sm text-text-faint shrink-0 select-none">{window.location.origin}/brain/</span>
                 <input
                   value={slug}
                   onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
@@ -103,9 +103,9 @@ export const ShareModal: React.FC<ShareModalProps> = ({ shareData, onSaved, onCl
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5">Password (optional)</label>
+              <label className="block text-xs font-medium text-text-muted mb-1.5">Password (optional)</label>
               <div className="relative">
-                <Lock size={14} className="absolute left-3 top-2.5 text-gray-500" />
+                <Lock size={14} className="absolute left-3 top-2.5 text-text-faint" />
                 <input
                   type="password"
                   value={password}
@@ -117,13 +117,13 @@ export const ShareModal: React.FC<ShareModalProps> = ({ shareData, onSaved, onCl
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5">Expire after (optional)</label>
+              <label className="block text-xs font-medium text-text-muted mb-1.5">Expire after (optional)</label>
               <select value={expiry} onChange={(e) => setExpiry(e.target.value)} className={`${inputCls} appearance-none`}>
-                <option value="" className="bg-gray-900">Never</option>
-                <option value="1" className="bg-gray-900">1 day</option>
-                <option value="7" className="bg-gray-900">1 week</option>
-                <option value="30" className="bg-gray-900">1 month</option>
-                <option value="90" className="bg-gray-900">3 months</option>
+                <option value="" className="bg-surface">Never</option>
+                <option value="1" className="bg-surface">1 day</option>
+                <option value="7" className="bg-surface">1 week</option>
+                <option value="30" className="bg-surface">1 month</option>
+                <option value="90" className="bg-surface">3 months</option>
               </select>
             </div>
           </>
@@ -135,7 +135,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ shareData, onSaved, onCl
           {loading ? <Loader2 size={15} className="animate-spin" /> : <Share2 size={15} />}
           {enabled ? "Save settings" : "Disable sharing"}
         </button>
-        <button type="button" onClick={onClose} className="px-4 py-2.5 rounded-xl glass border-white/20 text-gray-300 hover:bg-white/10 transition-all">
+        <button type="button" onClick={onClose} className="px-4 py-2.5 rounded-xl bg-surface border border-border text-text-muted hover:bg-surface-hover transition-all">
           Close
         </button>
       </div>

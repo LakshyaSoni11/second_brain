@@ -17,22 +17,22 @@ export const OAuthButtons: React.FC<{ mode: "signin" | "signup" }> = ({ mode }) 
     <div className="space-y-2.5">
       <a
         href={`${oauthBase}/google`}
-        className="flex w-full items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl glass border-white/20 text-sm font-medium text-gray-200 hover:bg-white/10 transition-all"
+        className="flex w-full items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-surface border border-border text-sm font-medium text-text hover:bg-surface-hover transition-all"
       >
         <GoogleIcon />
         Continue with Google
       </a>
       <a
         href={`${oauthBase}/github`}
-        className="flex w-full items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-white/95 text-sm font-medium text-gray-900 hover:bg-white transition-all"
+        className="flex w-full items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-text text-sm font-medium text-bg hover:opacity-90 transition-all"
       >
         <Github size={16} />
         Continue with GitHub
       </a>
       <div className="flex items-center gap-3 my-1">
-        <span className="flex-1 h-px bg-white/10" />
-        <span className="text-xs text-gray-500">{mode === "signup" ? "or sign up with email" : "or sign in with email"}</span>
-        <span className="flex-1 h-px bg-white/10" />
+        <span className="flex-1 h-px bg-border" />
+        <span className="text-xs text-text-faint">{mode === "signup" ? "or sign up with email" : "or sign in with email"}</span>
+        <span className="flex-1 h-px bg-border" />
       </div>
     </div>
   );

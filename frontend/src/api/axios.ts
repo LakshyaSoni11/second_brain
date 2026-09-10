@@ -90,9 +90,28 @@ export const contentAPI = {
   importData: (items: ContentPayload[]) => api.post("/content/import", { items }),
 };
 
+export interface BrainSource {
+  _id: string;
+  type: string;
+  title: string;
+  link?: string;
+  tags: string[];
+  summary?: string;
+  description?: string;
+  snippet?: string;
+  relevance: number;
+}
+
+export interface BrainAnswer {
+  answer: string;
+  sources: BrainSource[];
+  llmUsed: boolean;
+}
+
 export const aiAPI = {
   summarize: (contentId: string) => api.post("/ai/summarize", { contentId }),
   autotag: (contentId: string) => api.post("/ai/autotag", { contentId }),
+  askBrain: (question: string) => api.post<BrainAnswer>("/ai/brain", { question }),
 };
 
 export const tagAPI = {

@@ -3,7 +3,8 @@ import z from "zod";
 import { AppError } from "../middlewares/errorHandler";
 import { AuthRequest } from "../middlewares/authMiddleware";
 import Content from "../models/Content";
-import { autotagContent, summarizeContent } from "../services/aiService";
+import { autotagContent, answerFromContext, summarizeContent } from "../services/aiService";
+import { buildFallbackAnswer, retrieveBrain } from "../services/ragService";
 
 const aiRequestSchema = z.object({
     contentId: z.string().min(1, "contentId is required"),
@@ -64,5 +65,42 @@ export const autotag = async (req: AuthRequest, res: Response): Promise<void> =>
             return;
         }
         res.status(500).json({ message: "Failed to suggest tags" });
+    }
+};
+
+const brainRequestSchema = z.object({
+    question: z.string().trim().min(3, "question too short").max(500, "question too long"),
+});
+
+// POST /api/ai/brain - grounded "Ask your brain" Q&A (retrieve -> rank -> generate)
+export const askBrain = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = requireUserId(req);
+        const parsed = brainRequestSchema.safeParse(req.body);
+        if (!parsed.success) {
+            res.status(400).json({ message: parsed.error.issues[0]?.message || "Invalid request" });
+            return;
+        }
+
+        const { sources, context, hasContent, typeFilter, recencyBoost, action } = await retrieveBrain(userId, parsed.data.question, 6);
+
+        if (!hasContent) {
+            const answer =
+                "Your brain is empty right now.\n\nSave your first link, note or doc (use the **Add content** button), then ask me anything about it here.";
+            res.json({ answer, sources: [], llmUsed: false });
+            return;
+        }
+
+        let answer: string | null = sources.length ? await answerFromContext(parsed.data.question, context) : null;
+        const llmUsed = answer !== null;
+        if (!answer) answer = buildFallbackAnswer(parsed.data.question, sources, typeFilter, recencyBoost, hasContent, action);
+
+        res.json({ answer, sources, llmUsed });
+    } catch (error) {
+        if (error instanceof AppError) {
+            res.status(error.statusCode).json({ message: error.message });
+            return;
+        }
+        res.status(500).json({ message: "Failed to answer from brain" });
     }
 };

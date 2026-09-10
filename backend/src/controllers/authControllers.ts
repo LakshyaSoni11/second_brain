@@ -32,6 +32,10 @@ const generateToken = (userId: string): string => {
 const smtpConfigured = (): boolean =>
     Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
 
+// Store only a SHA-256 hash of one-time tokens so a DB leak doesn't expose usable tokens
+export const hashToken = (token: string): string =>
+    crypto.createHash("sha256").update(token).digest("hex");
+
 // POST /api/auth/signup
 export const signup = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -55,7 +59,7 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
             password,
             isVerified: !verifyToken,
             ...(verifyToken
-                ? { verifyToken, verifyTokenExpires: new Date(Date.now() + 24 * 60 * 60 * 1000) }
+                ? { verifyToken: hashToken(verifyToken), verifyTokenExpires: new Date(Date.now() + 24 * 60 * 60 * 1000) }
                 : {}),
         });
 
@@ -121,7 +125,7 @@ export const verifyEmail = async (req: Request, res: Response): Promise<void> =>
             res.status(400).json({ message: "Invalid token" });
             return;
         }
-        const user = await User.findOne({ verifyToken: token });
+        const user = await User.findOne({ verifyToken: hashToken(token) });
         if (!user || (user.verifyTokenExpires && user.verifyTokenExpires.getTime() < Date.now())) {
             res.status(400).json({ message: "Invalid or expired verification token" });
             return;
@@ -152,7 +156,7 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
             return;
         }
         const resetToken = crypto.randomBytes(32).toString("hex");
-        user.resetToken = resetToken;
+        user.resetToken = hashToken(resetToken);
         user.resetTokenExpires = new Date(Date.now() + 30 * 60 * 1000);
         await user.save();
         await sendResetPasswordEmail(user.email, resetToken);
@@ -171,7 +175,7 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
             return;
         }
         const { token, password } = parsed.data;
-        const user = await User.findOne({ resetToken: token });
+        const user = await User.findOne({ resetToken: hashToken(token) });
         if (!user || (user.resetTokenExpires && user.resetTokenExpires.getTime() < Date.now())) {
             res.status(400).json({ message: "Invalid or expired reset token" });
             return;

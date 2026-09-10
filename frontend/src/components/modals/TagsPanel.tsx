@@ -78,12 +78,12 @@ export const TagsPanel: React.FC<TagsPanelProps> = ({ open, onClose, onFilterTag
   return (
     <Modal open={open} onClose={onClose} title="Manage tags">
       {error && (
-        <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm break-words">{error}</div>
+        <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-sm break-words">{error}</div>
       )}
 
       <div className="flex items-center gap-2 mb-4">
         <div className="relative flex-1">
-          <Search size={14} className="absolute left-3 top-2.5 text-gray-500" />
+          <Search size={14} className="absolute left-3 top-2.5 text-text-faint" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
@@ -94,7 +94,7 @@ export const TagsPanel: React.FC<TagsPanelProps> = ({ open, onClose, onFilterTag
         <button
           type="button"
           onClick={() => setMergeSelection((sel) => (sel.length ? [] : tags.filter((t) => t.count > 0).map((t) => t.name).slice(0, 2)))}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs glass border-white/20 text-gray-300 hover:bg-white/10 transition-all"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs bg-surface border border-border text-text-muted hover:bg-surface-hover transition-all"
           title={mergeSelection.length ? "Clear selection" : "Merge mode"}
         >
           <CornerDownRight size={14} />
@@ -104,7 +104,7 @@ export const TagsPanel: React.FC<TagsPanelProps> = ({ open, onClose, onFilterTag
           type="button"
           onClick={load}
           disabled={loading}
-          className="p-2 rounded-xl glass border-white/20 text-gray-400 hover:bg-white/10 transition-all disabled:opacity-50"
+          className="p-2 rounded-xl bg-surface border border-border text-text-muted hover:bg-surface-hover transition-all disabled:opacity-50"
           aria-label="Refresh tags"
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : <RefreshCcw size={14} />}
@@ -113,19 +113,19 @@ export const TagsPanel: React.FC<TagsPanelProps> = ({ open, onClose, onFilterTag
 
       {loading && tags.length === 0 ? (
         <div className="flex justify-center py-10">
-          <div className="animate-spin w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full" />
+          <div className="animate-spin w-6 h-6 border-2 border-accent border-t-transparent rounded-full" />
         </div>
       ) : tags.length === 0 ? (
-        <div className="text-center py-10 text-gray-500 text-sm">
-          <Tag size={28} className="mx-auto mb-2 text-gray-600" />
+        <div className="text-center py-10 text-text-muted text-sm">
+          <Tag size={28} className="mx-auto mb-2 text-text-faint" />
           No tags yet. Tag your items to organize them.
         </div>
       ) : (
         <div className="space-y-1.5 max-h-[50vh] overflow-y-auto pr-1">
           {mergeSelection.length > 0 && (
-            <p className="text-xs text-gray-500 pb-1">
+            <p className="text-xs text-text-faint pb-1">
               Select tags to merge into one. {mergeSelection.length >= 2 && (
-                <button onClick={handleMerge} disabled={merging} className="ml-1 text-indigo-300 hover:text-indigo-200">
+                <button onClick={handleMerge} disabled={merging} className="ml-1 text-accent hover:underline">
                   {merging ? "Merging..." : `Merge ${mergeSelection.length} into ${mergeSelection[0]}`}
                 </button>
               )}
@@ -138,7 +138,7 @@ export const TagsPanel: React.FC<TagsPanelProps> = ({ open, onClose, onFilterTag
               <div
                 key={tag.name}
                 className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all ${
-                  selectedTag ? "bg-indigo-500/20 border-indigo-500/40" : "bg-white/5 border-white/10 hover:border-white/20"
+                  selectedTag ? "bg-accent/10 border-accent/30" : "bg-surface border-border hover:border-border-strong"
                 }`}
               >
                 {selectable ? (
@@ -152,14 +152,14 @@ export const TagsPanel: React.FC<TagsPanelProps> = ({ open, onClose, onFilterTag
                       )
                     }
                     className={`w-4 h-4 shrink-0 rounded border flex items-center justify-center text-[10px] ${
-                      selectedTag ? "bg-indigo-500 border-indigo-500 text-white" : "border-gray-500"
+                      selectedTag ? "bg-accent border-accent text-accent-text" : "border-border-strong"
                     }`}
                     aria-label={`Toggle ${tag.name}`}
                   >
                     {selectedTag ? "✓" : ""}
                   </button>
                 ) : (
-                  <Tag size={14} className={`shrink-0 ${selectedTag && isMergeTarget ? "text-white" : "text-yellow-400"}`} />
+                  <Tag size={14} className={`shrink-0 ${selectedTag && isMergeTarget ? "text-text" : "text-text-faint"}`} />
                 )}
 
                 {renaming?.tag === tag.name ? (
@@ -171,9 +171,9 @@ export const TagsPanel: React.FC<TagsPanelProps> = ({ open, onClose, onFilterTag
                         if (e.key === "Enter") handleRename(tag.name, (e.target as HTMLInputElement).value);
                         if (e.key === "Escape") setRenaming(null);
                       }}
-                      className="flex-1 min-w-0 bg-white/5 border border-indigo-500 rounded-lg px-2 py-1 text-sm text-white focus:outline-none"
+                      className="flex-1 min-w-0 bg-surface border border-accent rounded-lg px-2 py-1 text-sm text-text focus:outline-none"
                     />
-                    <button type="button" onClick={() => setRenaming(null)} className="text-gray-400 hover:text-gray-200">
+                    <button type="button" onClick={() => setRenaming(null)} className="text-text-muted hover:text-text">
                       <X size={14} />
                     </button>
                   </div>
@@ -187,8 +187,8 @@ export const TagsPanel: React.FC<TagsPanelProps> = ({ open, onClose, onFilterTag
                     className="flex-1 min-w-0 text-left"
                     title={`View all #${tag.name}`}
                   >
-                    <span className="text-sm text-gray-200 truncate block">#{tag.name}</span>
-                    <span className="text-[11px] text-gray-500">{tag.count} item{tag.count === 1 ? "" : "s"}</span>
+                    <span className="text-sm text-text truncate block">#{tag.name}</span>
+                    <span className="text-[11px] text-text-faint">{tag.count} item{tag.count === 1 ? "" : "s"}</span>
                   </button>
                 )}
 
@@ -197,7 +197,7 @@ export const TagsPanel: React.FC<TagsPanelProps> = ({ open, onClose, onFilterTag
                     <button
                       type="button"
                       onClick={() => setRenaming({ tag: tag.name, name: tag.name })}
-                      className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-indigo-300 transition-all"
+                      className="p-1.5 rounded-lg hover:bg-surface-hover text-text-muted hover:text-text transition-all"
                       aria-label={`Rename ${tag.name}`}
                     >
                       <Pencil size={13} />
@@ -205,7 +205,7 @@ export const TagsPanel: React.FC<TagsPanelProps> = ({ open, onClose, onFilterTag
                     <button
                       type="button"
                       onClick={() => handleDelete(tag.name)}
-                      className="p-1.5 rounded-lg hover:bg-red-500/20 text-gray-400 hover:text-red-400 transition-all"
+                      className="p-1.5 rounded-lg hover:bg-red-500/10 text-text-muted hover:text-red-500 transition-all"
                       aria-label={`Delete ${tag.name}`}
                     >
                       <Trash2 size={13} />
@@ -219,7 +219,7 @@ export const TagsPanel: React.FC<TagsPanelProps> = ({ open, onClose, onFilterTag
       )}
 
       {!selectable && tags.length > 1 && (
-        <p className="text-xs text-gray-500 mt-3 flex items-center gap-1.5">
+        <p className="text-xs text-text-faint mt-3 flex items-center gap-1.5">
           <CornerDownRight size={12} /> Merge mode lets you combine similar tags and update every item.
         </p>
       )}

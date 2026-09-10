@@ -4,6 +4,7 @@ import { Brain, Globe, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { CardGrid } from "../components/cards/CardGrid";
 import { shareAPI } from "../api/axios";
 import type { Content } from "../types";
+import { useThemeStore } from "../store/themeStore";
 
 export interface SharedBrainData {
   username: string;
@@ -18,6 +19,7 @@ export const SharedBrainPage: React.FC = () => {
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { theme, toggle } = useThemeStore();
 
   const load = useCallback(
     async (pw?: string) => {
@@ -56,28 +58,31 @@ export const SharedBrainPage: React.FC = () => {
 
   if (error && !needsPassword) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-center p-6">
+      <div className="min-h-screen flex flex-col items-center justify-center text-center p-6 bg-bg">
         <div className="text-6xl mb-4">🔒</div>
-        <h2 className="text-xl font-semibold text-white mb-2">Brain Not Found</h2>
-        <p className="text-gray-400 text-sm max-w-sm">{error}</p>
+        <h2 className="text-xl font-semibold text-text mb-2">Brain Not Found</h2>
+        <p className="text-text-muted text-sm max-w-sm">{error}</p>
+        <button onClick={toggle} className="mt-4 text-xs text-text-faint hover:text-text">
+          {theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+        </button>
       </div>
     );
   }
 
   if (needsPassword) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="w-full max-w-md glass rounded-3xl p-6 sm:p-8 animate-fade-in">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-bg">
+        <div className="w-full max-w-md bg-surface border border-border rounded-3xl p-6 sm:p-8 animate-fade-in">
           <div className="text-center mb-6">
-            <div className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-4">
-              <Lock className="w-5 h-5 text-white" />
+            <div className="w-12 h-12 mx-auto rounded-2xl bg-accent flex items-center justify-center mb-4">
+              <Lock className="w-5 h-5 text-accent-text" />
             </div>
-            <h2 className="text-xl font-semibold text-white">Password protected</h2>
-            <p className="text-sm text-gray-400 mt-1">Enter the password to view this brain.</p>
+            <h2 className="text-xl font-semibold text-text">Password protected</h2>
+            <p className="text-sm text-text-muted mt-1">Enter the password to view this brain.</p>
           </div>
 
           {error && (
-            <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+            <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-sm">
               {error}
             </div>
           )}
@@ -101,7 +106,7 @@ export const SharedBrainPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowPass((s) => !s)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-faint hover:text-text"
                 aria-label={showPass ? "Hide password" : "Show password"}
               >
                 {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -118,33 +123,38 @@ export const SharedBrainPage: React.FC = () => {
 
   if (loading || !data) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full" />
+      <div className="min-h-screen flex items-center justify-center bg-bg">
+        <div className="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="glass border-b border-white/10 px-4 sm:px-6 py-4">
+    <div className="min-h-screen bg-bg">
+      <header className="border-b border-border bg-bg/80 backdrop-blur-xl px-4 sm:px-6 py-4">
         <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-8 h-8 shrink-0 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-              <Brain className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 shrink-0 rounded-xl bg-accent flex items-center justify-center">
+              <Brain className="w-4 h-4 text-accent-text" />
             </div>
             <div className="min-w-0">
               <span className="text-sm gradient-text font-semibold truncate block">
                 {data.username || "Shared"}&apos;s Brain
               </span>
-              <div className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
+              <div className="flex items-center gap-1 text-xs text-text-faint mt-0.5">
                 <Globe size={11} />
                 <span>Public · Read only</span>
               </div>
             </div>
           </div>
-          <span className="text-xs text-gray-600 glass px-3 py-1 rounded-full border border-white/10 shrink-0">
-            {data.content.length} items
-          </span>
+          <div className="flex items-center gap-2">
+            <button onClick={toggle} className="p-1.5 rounded-lg bg-surface border border-border text-text-faint hover:text-text transition-all" aria-label="Toggle theme">
+              {theme === "dark" ? "☀" : "☾"}
+            </button>
+            <span className="text-xs text-text-faint bg-surface border border-border px-3 py-1 rounded-full shrink-0">
+              {data.content.length} items
+            </span>
+          </div>
         </div>
       </header>
 
@@ -152,8 +162,8 @@ export const SharedBrainPage: React.FC = () => {
         {data.content.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 text-center">
             <div className="text-5xl mb-4">🧠</div>
-            <p className="text-gray-400 font-medium">This brain is empty</p>
-            <p className="text-gray-600 text-sm mt-1">Nothing shared yet.</p>
+            <p className="text-text-muted font-medium">This brain is empty</p>
+            <p className="text-text-faint text-sm mt-1">Nothing shared yet.</p>
           </div>
         ) : (
           <CardGrid items={data.content} readOnly />

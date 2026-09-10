@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Twitter, Youtube, FileText, Link2, Tag, LineChart, Plus, X, Wand2, Loader2 } from "lucide-react";
 import { Modal } from "../ui/Modal";
 import { useContent } from "../../hooks/useContent";
@@ -16,12 +16,12 @@ const TYPES: { value: ContentType; label: string; icon: React.ReactNode; color: 
 ];
 
 const colorMap: Record<string, string> = {
-  sky: "border-sky-500 bg-sky-500/20 text-sky-300",
-  red: "border-red-500 bg-red-500/20 text-red-300",
-  blue: "border-blue-500 bg-blue-500/20 text-blue-300",
-  green: "border-green-500 bg-green-500/20 text-green-300",
-  violet: "border-violet-500 bg-violet-500/20 text-violet-300",
-  yellow: "border-yellow-500 bg-yellow-500/20 text-yellow-300",
+  sky: "border-sky-500 bg-sky-500/10 text-sky-600 dark:text-sky-400",
+  red: "border-red-500 bg-red-500/10 text-red-600 dark:text-red-400",
+  blue: "border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400",
+  green: "border-green-500 bg-green-500/10 text-green-600 dark:text-green-400",
+  violet: "border-violet-500 bg-violet-500/10 text-violet-600 dark:text-violet-400",
+  yellow: "border-yellow-500 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400",
 };
 
 interface AddContentModalProps {
@@ -44,7 +44,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ onClose, item 
   const [showPreview, setShowPreview] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (item) {
       setType(item.type);
       setTitle(item.title);
@@ -111,7 +111,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ onClose, item 
   return (
     <Modal open onClose={onClose} title={isEditing ? "Edit item" : "Add to your Brain"}>
       {error && (
-        <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm break-words">
+        <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-sm break-words">
           {error}
         </div>
       )}
@@ -125,7 +125,7 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ onClose, item 
             className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${
               type === value
                 ? colorMap[color]
-                : "border-white/10 bg-white/5 text-gray-400 hover:bg-white/10"
+                : "border-border bg-surface text-text-muted hover:bg-surface-hover"
             }`}
           >
             {icon} {label}
@@ -135,27 +135,27 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ onClose, item 
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-medium text-gray-400 mb-1.5">Title *</label>
+          <label className="block text-xs font-medium text-text-muted mb-1.5">Title *</label>
           <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Give it a descriptive title" className="input-field" />
         </div>
 
         {type !== "tag" && (
           <div>
-            <label className="block text-xs font-medium text-gray-400 mb-1.5">URL</label>
+            <label className="block text-xs font-medium text-text-muted mb-1.5">URL</label>
             <input value={link} onChange={(e) => setLink(e.target.value)} placeholder="https://..." className="input-field" />
           </div>
         )}
 
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-xs font-medium text-gray-400">
+            <label className="block text-xs font-medium text-text-muted">
               {type === "note" ? "Note (Markdown supported)" : "Description (optional)"}
             </label>
             {type === "note" && description && (
               <button
                 type="button"
                 onClick={() => setShowPreview((p) => !p)}
-                className="text-[11px] text-indigo-300 hover:text-indigo-200"
+                className="text-[11px] text-text font-medium hover:underline"
               >
                 {showPreview ? "Hide preview" : "Preview"}
               </button>
@@ -170,13 +170,13 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ onClose, item 
 
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-xs font-medium text-gray-400">Tags</label>
+            <label className="block text-xs font-medium text-text-muted">Tags</label>
             {isEditing && (
               <button
                 type="button"
                 onClick={handleAutotag}
                 disabled={tagging}
-                className="inline-flex items-center gap-1 text-[11px] text-indigo-300 hover:text-indigo-200 transition-all disabled:opacity-50"
+                className="inline-flex items-center gap-1 text-[11px] text-text font-medium hover:underline transition-all disabled:opacity-50"
               >
                 {tagging ? <Loader2 size={11} className="animate-spin" /> : <Wand2 size={11} />}
                 Auto-tag with AI
@@ -196,16 +196,16 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ onClose, item 
               placeholder="Add tag and press Enter"
               className="input-field flex-1 min-w-0"
             />
-            <button type="button" onClick={addTag} className="px-3 py-2.5 rounded-xl glass border-white/20 text-gray-300 hover:bg-white/10 transition-all" aria-label="Add tag">
+            <button type="button" onClick={addTag} className="px-3 py-2.5 rounded-xl bg-surface border border-border text-text-muted hover:bg-surface-hover transition-all" aria-label="Add tag">
               <Plus size={14} />
             </button>
           </div>
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-2">
               {tags.map((tag) => (
-                <span key={tag} className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-300">
+                <span key={tag} className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent">
                   #{tag}
-                  <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-400 ml-0.5" aria-label={`Remove ${tag}`}>
+                  <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-500 ml-0.5" aria-label={`Remove ${tag}`}>
                     <X size={10} />
                   </button>
                 </span>
@@ -221,3 +221,5 @@ export const AddContentModal: React.FC<AddContentModalProps> = ({ onClose, item 
     </Modal>
   );
 };
+
+

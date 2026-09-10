@@ -59,7 +59,17 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
         const user = await User.findByIdAndUpdate(userId, { $set: update }, { returnDocument: "after" }).select(
             "username email displayName avatar provider"
         );
-        res.json({ message: "Profile updated", user });
+        res.json({
+            message: "Profile updated",
+            user: {
+                id: user?._id,
+                username: user?.username,
+                email: user?.email,
+                displayName: user?.displayName ?? null,
+                avatar: user?.avatar ?? null,
+                provider: user?.provider ?? "local",
+            },
+        });
     } catch (error) {
         res.status(500).json({ message: "Failed to update profile" });
     }

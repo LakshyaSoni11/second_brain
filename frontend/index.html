@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#0f0f1a" />
+    <meta name="theme-color" content="#0a0a0a" />
     <meta name="description" content="Second Brain — your personal knowledge hub" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -13,6 +13,17 @@
     <link rel="icon" type="image/png" href="/icons/icon-192.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <title>Second Brain</title>
+    <script>
+      (function () {
+        try {
+          var stored = JSON.parse(localStorage.getItem("theme-storage") || "{}");
+          var theme = (stored.state && stored.state.theme) || "dark";
+          document.documentElement.classList.add(theme);
+        } catch (e) {
+          document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

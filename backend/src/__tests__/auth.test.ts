@@ -1,9 +1,12 @@
 import request from "supertest";
 import { describe, it, expect } from "vitest";
+import crypto from "crypto";
 import User from "../models/User";
 import { app } from "../index";
 
 const base = "/api/v1";
+
+const hashToken = (token: string): string => crypto.createHash("sha256").update(token).digest("hex");
 
 describe("Auth endpoints", () => {
     it("signup creates a verified account (no SMTP configured)", async () => {
@@ -87,7 +90,7 @@ describe("Auth endpoints", () => {
             email: "frank@test.dev",
             password: "password123",
             isVerified: false,
-            verifyToken: "vtoken123",
+            verifyToken: hashToken("vtoken123"),
             verifyTokenExpires: new Date(Date.now() + 60_000),
         });
         const res = await request(app).get(`${base}/auth/verify-email?token=vtoken123`);
@@ -115,7 +118,7 @@ describe("Auth endpoints", () => {
             email: "grace@test.dev",
             password: "oldpassword1",
             isVerified: true,
-            resetToken: "rtoken123",
+            resetToken: hashToken("rtoken123"),
             resetTokenExpires: new Date(Date.now() + 60_000),
         });
         const res = await request(app).post(`${base}/auth/reset-password`).send({
@@ -136,7 +139,7 @@ describe("Auth endpoints", () => {
             username: "heidi",
             email: "heidi@test.dev",
             password: "oldpassword1",
-            resetToken: "expiredtoken",
+            resetToken: hashToken("expiredtoken"),
             resetTokenExpires: new Date(Date.now() - 60_000),
         });
         const res = await request(app).post(`${base}/auth/reset-password`).send({

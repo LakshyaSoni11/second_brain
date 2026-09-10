@@ -1,6 +1,6 @@
 import crypto from "crypto";
 
-export const generateHash = (length: number = 12): string =>{
-    return crypto.randomBytes(length).toString("hex").slice(0, length)
+export const generateHash = (length: number = 24): string =>{
+    return crypto.randomBytes(Math.ceil(length / 2)).toString("hex").slice(0, length)
 }
 

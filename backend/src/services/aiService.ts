@@ -1,5 +1,18 @@
 import { IContent } from "../models/Content";
 import { extractTextFromHtml, extractiveSummary, getKeywords, safeHost } from "../utils/text";
+import dns from "dns";
+
+const PRIVATE_IP_RE = /^(localhost|127\.\d+\.\d+\.\d+|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|0\.0\.0\.0|169\.254\.\d+\.\d+|::1|fc00:|fe80:)/i;
+
+const isPrivateOrReserved = async (hostname: string): Promise<boolean> => {
+    if (PRIVATE_IP_RE.test(hostname)) return true;
+    try {
+        const addrs = await dns.promises.resolve4(hostname);
+        return addrs.some((a) => PRIVATE_IP_RE.test(a));
+    } catch {
+        return false;
+    }
+};
 
 const callOpenAI = async (prompt: string, maxTokens = 250): Promise<string | null> => {
     // Prefer Groq (OpenAI-compatible API) when its key is set; fall back to OpenAI.
@@ -44,6 +57,9 @@ interface FetchResult {
 const fetchPageText = async (url: string): Promise<FetchResult> => {
     const empty: FetchResult = { bodyText: "", pageTitle: "" };
     try {
+        const parsedUrl = new URL(url);
+        if (await isPrivateOrReserved(parsedUrl.hostname)) return empty;
+
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 8000);
         const res = await fetch(url, {
@@ -84,6 +100,21 @@ export const summarizeContent = async (content: IContent): Promise<string> => {
 
     const extracted = extractiveSummary(source);
     return bodyText || extracted.length > fallbackText.length ? extracted : fallbackText.slice(0, 400);
+};
+
+// Grounded "RAG" answer: the LLM answers strictly from the numbered sources passed in context.
+// Returns null when no LLM is available (caller falls back to a deterministic answer).
+export const answerFromContext = async (question: string, context: string): Promise<string | null> => {
+    const prompt =
+        `You are answering a question using ONLY the user's saved notes ("brain"), shown below as numbered sources ` +
+        `(a source has type, title, tags, a short snippet, and optionally a link).\n\n` +
+        `Rules:\n` +
+        `- Answer from the sources. If the sources don't contain the answer, say so plainly ` +
+        `(e.g. "This isn't in your brain yet — save something about X and ask me again") without guessing.\n` +
+        `- Cite your sources inline like [1], [2] right after the sentence that uses them.\n` +
+        `- Keep it concise, under 180 words. Use short markdown bullets where it helps.\n\n` +
+        `SOURCES:\n${context}\n\nQUESTION: ${question}`;
+    return callOpenAI(prompt, 320);
 };
 
 // Suggest tags for a saved item.

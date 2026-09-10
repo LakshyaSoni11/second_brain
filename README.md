@@ -1,6 +1,6 @@
 # second_brain
 
-Your personal knowledge hub — save tweets, videos, docs, links and notes; tag, search and share them; ask AI agents to summarize and organize.
+Your personal knowledge hub — save tweets, videos, docs, links and notes; tag, search and share them; ask AI agents to summarize, organize, and **chat with your brain** (RAG).
 
 ## Stack
 
@@ -16,6 +16,7 @@ Your personal knowledge hub — save tweets, videos, docs, links and notes; tag,
 - Email verification + forgot/reset password, Google & GitHub OAuth
 - Custom share links with password and expiry
 - AI agents: chat, summarize, auto-tag, weekly digest
+- **Ask your brain** — RAG chat with your saved content, answers with cited sources
 
 ## Getting Started
 
@@ -43,7 +44,13 @@ Open http://localhost:5173
 
 ```bash
 cd backend
-npm test                 # 46 Vitest + supertest tests
+npm test                 # 55 Vitest + supertest tests
+```
+
+## Documentation
+
+```bash
+DOCUMENTATION.md         # full implementation docs: architecture, phases, logic + file locations
 ```
 
 ## Project Structure

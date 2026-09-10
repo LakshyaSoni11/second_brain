@@ -31,15 +31,15 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, title, children }) 
       aria-modal="true"
     >
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in"
         onClick={onClose}
       />
-      <div className="relative z-10 w-full sm:max-w-lg glass rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl animate-fade-in max-h-[92vh] overflow-y-auto">
+      <div className="relative z-10 w-full sm:max-w-lg bg-surface border border-border rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl animate-fade-in max-h-[92vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-semibold text-white">{title}</h2>
+          <h2 className="text-lg font-semibold text-text">{title}</h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl hover:bg-white/10 text-gray-400 hover:text-gray-200 transition-all"
+            className="p-2 rounded-xl hover:bg-surface-hover text-text-muted hover:text-text transition-all"
             aria-label="Close"
           >
             <X size={18} />

@@ -4,8 +4,10 @@ import helmet from "helmet";
 import dotenv from "dotenv";
 import rateLimit from "express-rate-limit";
 import morgan from "morgan";
+import mongoose from "mongoose";
 import { randomUUID } from "crypto";
 import { connectDB } from "./config/db";
+import { env } from "./config/env";
 import authRoutes from "./routes/authRoutes";
 import contentRoutes from "./routes/contentRoutes";
 import shareRoutes from "./routes/shareRoutes";
@@ -71,6 +73,13 @@ const aiLimiter = rateLimit({
     legacyHeaders: false,
     message: { message: "Too many AI requests, please slow down" },
 });
+const shareLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    limit: 30,
+    standardHeaders: "draft-7",
+    legacyHeaders: false,
+    message: { message: "Too many share requests, please slow down" },
+});
 
 // Routes (supports both /api/v1 and /api for frontend compatibility)
 app.use("/api/v1/auth", authLimiter, authRoutes);
@@ -85,8 +94,8 @@ app.use("/api/ai", aiLimiter, aiRoutes);
 app.use("/api/v1/agents", aiLimiter, agentRoutes);
 app.use("/api/agents", aiLimiter, agentRoutes);
 
-app.use("/api/v1/brain", shareRoutes);
-app.use("/api/brain", shareRoutes);
+app.use("/api/v1/brain", shareLimiter, shareRoutes);
+app.use("/api/brain", shareLimiter, shareRoutes);
 
 app.use("/api/v1/tags", contentLimiter, tagRoutes);
 app.use("/api/tags", contentLimiter, tagRoutes);
@@ -94,9 +103,15 @@ app.use("/api/tags", contentLimiter, tagRoutes);
 app.use("/api/v1/user", contentLimiter, userRoutes);
 app.use("/api/user", contentLimiter, userRoutes);
 
-// Health check
-const healthCheck = (_: express.Request, res: express.Response) => {
-    res.json({ status: "OK", timestamp: new Date().toISOString() });
+// Health check - reports DB connectivity for load balancers / uptime monitors
+const healthCheck = async (_: express.Request, res: express.Response) => {
+    const dbState = mongoose.connection.readyState;
+    const dbUp = dbState === 1;
+    res.status(dbUp ? 200 : 503).json({
+        status: dbUp ? "OK" : "DEGRADED",
+        db: dbUp ? "connected" : `disconnected (state ${dbState})`,
+        timestamp: new Date().toISOString(),
+    });
 };
 
 app.get("/health", healthCheck);
@@ -110,9 +125,22 @@ app.use(errorHandler);
 const startServer = async () => {
     try {
         await connectDB();
-        app.listen(PORT, () => {
+        const server = app.listen(PORT, () => {
             console.log(`🚀 Server running on http://localhost:${PORT}`);
         });
+
+        const shutdown = async (signal: string) => {
+            console.log(`\n${signal} received. Shutting down gracefully...`);
+            server.close(async () => {
+                await mongoose.connection.close();
+                console.log("✅ Server shut down.");
+                process.exit(0);
+            });
+            setTimeout(() => process.exit(1), 10000).unref();
+        };
+
+        process.on("SIGTERM", () => shutdown("SIGTERM"));
+        process.on("SIGINT", () => shutdown("SIGINT"));
     } catch (error) {
         console.error("❌ Failed to start server:", error);
         process.exit(1);

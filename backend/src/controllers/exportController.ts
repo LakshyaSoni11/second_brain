@@ -11,7 +11,8 @@ const requireUserId = (req: AuthRequest): string => {
 
 const escCsv = (v: unknown): string => {
     const s = String(v ?? "");
-    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    const needsQuoting = /[",\n\r]/.test(s) || /^[=+\-@\t\r]/.test(s);
+    return needsQuoting ? `"${s.replace(/"/g, '""')}"` : s;
 };
 
 // GET /api/content/export?format=json|csv|markdown

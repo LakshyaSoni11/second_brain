@@ -103,5 +103,5 @@ export type AgentStreamEvent =
 | {type: "start"; agentId: string}
 | {type: "delta"; text: string}
 | {type: "tool"; name: string; args: Record<string, unknown>; result: unknown}
-| {type: "done";  content: string; toolcalls: AgentToolCall[]}
+| {type: "done";  content: string; toolCalls: AgentToolCall[]}
 | {type: "error"; message: string};

@@ -19,7 +19,7 @@ export const useAgentChat = (agentId: string) => {
   }, []);
 
   const send = useCallback(
-    (text: string) => {
+    (text: string, silent = false) => {
       const trimmed = text.trim();
       if (!trimmed || running) return;
 
@@ -39,7 +39,7 @@ export const useAgentChat = (agentId: string) => {
         createdAt: new Date().toISOString(),
         toolCalls: [],
       };
-      setMessages((prev) => [...prev, userMsg, assistantMsg]);
+      setMessages((prev) => [...prev, ...(silent ? [] : [userMsg]), assistantMsg]);
 
       const history = messages
         .filter((m) => m.content || (m.toolCalls?.length ?? 0) > 0)
@@ -80,11 +80,18 @@ export const useAgentChat = (agentId: string) => {
     [agentId, messages, running]
   );
 
+  // Auto-greet when the panel opens: streams Nuro's intro without a user bubble.
+  const greet = useCallback(() => {
+    if (running || messages.length > 0) return;
+    setError(null);
+    send("__nuro_greet__", true);
+  }, [messages.length, running, send]);
+
   const stop = useCallback(() => {
     ctrlRef.current?.abort();
     ctrlRef.current = null;
     setRunning(false);
   }, []);
 
-  return { messages, running, error, send, stop, reset };
+  return { messages, running, error, send, stop, reset, greet };
 };

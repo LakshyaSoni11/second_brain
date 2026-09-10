@@ -1,4 +1,5 @@
 import passport from "passport";
+import crypto from "crypto";
 import { Strategy as GoogleStrategy, Profile as GoogleProfile } from "passport-google-oauth20";
 import { Strategy as GitHubStrategy, Profile as GitHubProfile } from "passport-github2";
 import User from "../models/User";
@@ -17,7 +18,7 @@ export const findOrCreateOAuthUser = async (profile: OAuthProfile, provider: "go
         const createData: Record<string, unknown> = {
             username,
             email,
-            password: `oauth_${require("crypto").randomBytes(32).toString("hex")}`,
+            password: `oauth_${crypto.randomBytes(32).toString("hex")}`,
             isVerified: true,
             provider: provider === "google" ? "google" : "github",
             providerId,

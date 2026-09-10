@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Brain, Loader2, MailCheck, ArrowLeft } from "lucide-react";
 import { authAPI } from "../api/axios";
+import { useThemeStore } from "../store/themeStore";
 
 export const ForgotPasswordPage: React.FC = () => {
+  const { theme, toggle } = useThemeStore();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -24,44 +26,44 @@ export const ForgotPasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-bg">
       <div className="w-full max-w-md animate-fade-in">
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-              <Brain className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 rounded-2xl bg-accent flex items-center justify-center">
+              <Brain className="w-6 h-6 text-accent-text" />
             </div>
             <h1 className="text-3xl font-bold gradient-text">Second Brain</h1>
           </div>
         </div>
 
-        <div className="glass rounded-3xl p-6 sm:p-8">
+        <div className="bg-surface border border-border rounded-3xl p-6 sm:p-8">
           {sent ? (
             <div className="text-center py-4">
-              <MailCheck size={40} className="mx-auto mb-4 text-green-400" />
-              <h2 className="text-lg font-semibold text-white mb-2">Check your email</h2>
-              <p className="text-sm text-gray-400">
-                If an account exists for <span className="text-gray-200 break-all">{email}</span>, we've sent a password
+              <MailCheck size={40} className="mx-auto mb-4 text-emerald-500" />
+              <h2 className="text-lg font-semibold text-text mb-2">Check your email</h2>
+              <p className="text-sm text-text-muted">
+                If an account exists for <span className="text-text break-all">{email}</span>, we've sent a password
                 reset link. Follow the link to choose a new password (the link expires in 1 hour).
               </p>
-              <Link to="/signin" className="inline-flex items-center gap-1.5 text-sm text-indigo-400 hover:text-indigo-300 mt-5">
+              <Link to="/signin" className="inline-flex items-center gap-1.5 text-sm text-text font-medium hover:underline mt-5">
                 <ArrowLeft size={14} /> Back to sign in
               </Link>
             </div>
           ) : (
             <>
-              <h2 className="text-xl font-semibold text-white mb-2">Reset your password</h2>
-              <p className="text-sm text-gray-400 mb-6">Enter your email and we'll send you a reset link.</p>
+              <h2 className="text-xl font-semibold text-text mb-2">Reset your password</h2>
+              <p className="text-sm text-text-muted mb-6">Enter your email and we'll send you a reset link.</p>
 
               {error && (
-                <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm break-words">
+                <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-sm break-words">
                   {error}
                 </div>
               )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                  <label className="block text-sm font-medium text-text-muted mb-2">Email</label>
                   <input
                     type="email"
                     required
@@ -76,15 +78,19 @@ export const ForgotPasswordPage: React.FC = () => {
                 </button>
               </form>
 
-              <p className="text-center text-gray-400 text-sm mt-6">
+              <p className="text-center text-text-muted text-sm mt-6">
                 Remembered it?{" "}
-                <Link to="/signin" className="text-indigo-400 hover:text-indigo-300 font-medium">
+                <Link to="/signin" className="text-text font-medium hover:underline">
                   Sign in
                 </Link>
               </p>
             </>
           )}
         </div>
+
+        <button onClick={toggle} className="mt-4 mx-auto block text-xs text-text-faint hover:text-text">
+          {theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+        </button>
       </div>
     </div>
   );

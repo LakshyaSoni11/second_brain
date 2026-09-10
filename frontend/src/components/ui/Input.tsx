@@ -10,7 +10,7 @@ export const Input: React.FC<InputProps> = ({ label, error, id, className = "", 
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={inputId} className="block text-sm font-medium text-gray-300 mb-2">
+        <label htmlFor={inputId} className="block text-sm font-medium text-text-muted mb-2">
           {label}
         </label>
       )}
@@ -19,7 +19,7 @@ export const Input: React.FC<InputProps> = ({ label, error, id, className = "", 
         className={`input-field ${error ? "border-red-500/50 focus:border-red-500 focus:ring-red-500" : ""} ${className}`}
         {...rest}
       />
-      {error && <p className="mt-1.5 text-xs text-red-400">{error}</p>}
+      {error && <p className="mt-1.5 text-xs text-red-500">{error}</p>}
     </div>
   );
 };

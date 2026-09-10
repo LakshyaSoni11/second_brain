@@ -4,7 +4,7 @@ import {
   Search,
   Star,
   X,
-  Bot,
+  MessageCircle,
   Tags,
   Download,
   Upload,
@@ -12,21 +12,21 @@ import {
   CheckSquare,
   Square,
   Loader2,
-  Sparkles,
   ClipboardList,
   Plus,
 } from "lucide-react";
 import { Layout } from "../components/layout/Layout";
 import { CardGrid } from "../components/cards/CardGrid";
+import { DashboardSkeleton } from "../components/ui/Skeleton";
 import type { SavePayload } from "../components/cards/ContentCard";
 import { AddContentModal } from "../components/modals/AddContentModal";
 import { ShareModal } from "../components/modals/ShareModal";
 import { TagsPanel } from "../components/modals/TagsPanel";
-import { AgentPanel } from "../components/agents/AgentPanel";
 import { useAuthStore } from "../store/authStore";
 import { useAgentStore } from "../store/agentStore";
 import { useContentStore } from "../store/contentStore";
 import { useContent } from "../hooks/useContent";
+import { toast } from "../components/ui/Toast";
 import { contentAPI, shareAPI } from "../api/axios";
 import type { ContentPayload } from "../api/axios";
 import type { ContentFilter, DashboardStats, ShareInfo } from "../types";
@@ -34,16 +34,15 @@ import type { ContentFilter, DashboardStats, ShareInfo } from "../types";
 const PAGE_SIZE = 12;
 
 const StatChip: React.FC<{ label: string; value: number }> = ({ label, value }) => (
-  <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl glass border-white/10 text-sm">
-    <span className="capitalize text-gray-400">{label}</span>
-    <span className="font-semibold text-white">{value}</span>
+  <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface border border-border text-sm">
+    <span className="capitalize text-text-muted">{label}</span>
+    <span className="font-semibold text-text">{value}</span>
   </div>
 );
 
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
-  const agentsOpen = useAgentStore((s) => s.open);
   const setAgentsOpen = useAgentStore((s) => s.setOpen);
   const updateItem = useContentStore((s) => s.updateItem);
   const { content, loading, pagination, fetchAll, update, toggleFavorite, remove } = useContent();
@@ -93,18 +92,14 @@ export const DashboardPage: React.FC = () => {
     contentAPI
       .getStats()
       .then(({ data }) => setStats(data))
-      .catch(() => {
-        /* non-fatal */
-      });
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
     shareAPI
       .getStatus()
       .then(({ data }) => setShareData(data))
-      .catch(() => {
-        /* non-fatal */
-      });
+      .catch(() => {});
   }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -156,7 +151,7 @@ export const DashboardPage: React.FC = () => {
       try {
         await remove(id);
       } catch {
-        /* non-fatal */
+        toast("Failed to delete item");
       }
     },
     [remove]
@@ -198,9 +193,9 @@ export const DashboardPage: React.FC = () => {
       const ids = Array.from(selected);
       ids.forEach((id) => useContentStore.getState().removeContent(id));
       setSelected(new Set());
-      window.location.reload();
+      loadContent();
     } catch {
-      /* non-fatal */
+      toast("Bulk action failed");
     } finally {
       setBulkBusy(false);
     }
@@ -240,7 +235,7 @@ export const DashboardPage: React.FC = () => {
       a.remove();
       URL.revokeObjectURL(url);
     } catch {
-      /* non-fatal */
+      toast("Export failed");
     } finally {
       setExporting(null);
     }
@@ -293,20 +288,20 @@ export const DashboardPage: React.FC = () => {
       onLogout={handleLogout}
     >
       <div className="mb-6 flex flex-wrap items-center gap-3">
-        <h2 className="text-xl sm:text-2xl font-bold text-white capitalize mr-auto">
+        <h2 className="text-xl sm:text-2xl font-bold text-text capitalize mr-auto">
           {title}
         </h2>
         {activeTag && (
           <button
             onClick={() => setActiveTag(null)}
-            className="inline-flex items-center gap-1 text-sm text-gray-400 glass px-3 py-1.5 rounded-full border-white/10 hover:text-gray-200"
+            className="inline-flex items-center gap-1 text-sm text-text-muted bg-surface border border-border px-3 py-1.5 rounded-full hover:bg-surface-hover"
           >
             <Tags size={12} /> #{activeTag} <X size={12} />
           </button>
         )}
         {appliedQ && (
-          <span className="text-sm text-gray-400 glass px-3 py-1.5 rounded-full border-white/10">
-            Search: “{appliedQ}”
+          <span className="text-sm text-text-muted bg-surface border border-border px-3 py-1.5 rounded-full">
+            Search: "{appliedQ}"
           </span>
         )}
       </div>
@@ -314,7 +309,7 @@ export const DashboardPage: React.FC = () => {
       <div className="mb-6 space-y-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <form onSubmit={handleSearchSubmit} className="flex-1 relative">
-            <Search size={16} className="absolute left-3.5 top-3 text-gray-500" />
+            <Search size={16} className="absolute left-3.5 top-3 text-text-faint" />
             <input
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
@@ -325,13 +320,13 @@ export const DashboardPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleClearSearch}
-                className="absolute right-24 top-2.5 p-1 rounded-lg hover:bg-white/10 text-gray-400"
+                className="absolute right-24 top-2.5 p-1 rounded-lg hover:bg-surface-hover text-text-faint"
                 aria-label="Clear search"
               >
                 <X size={14} />
               </button>
             )}
-            <button type="submit" className="absolute right-2 top-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white transition-all">
+            <button type="submit" className="absolute right-2 top-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-accent text-accent-text hover:bg-accent-hover transition-all">
               Search
             </button>
           </form>
@@ -339,8 +334,8 @@ export const DashboardPage: React.FC = () => {
             onClick={() => setFavOnly((f) => !f)}
             className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all border ${
               favOnly
-                ? "bg-amber-500/20 border-amber-500/30 text-amber-300"
-                : "glass border-white/20 text-gray-300 hover:bg-white/10"
+                ? "bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400"
+                : "bg-surface border-border text-text-muted hover:bg-surface-hover"
             }`}
           >
             <Star size={16} fill={favOnly ? "currentColor" : "none"} />
@@ -350,40 +345,30 @@ export const DashboardPage: React.FC = () => {
             onClick={() => setBulkMode((b) => !b)}
             className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all border ${
               bulkMode
-                ? "bg-indigo-500/20 border-indigo-500/40 text-indigo-300"
-                : "glass border-white/20 text-gray-300 hover:bg-white/10"
+                ? "bg-accent/10 border-accent/20 text-accent"
+                : "bg-surface border-border text-text-muted hover:bg-surface-hover"
             }`}
           >
             {bulkMode ? <CheckSquare size={16} /> : <Square size={16} />}
             Select
           </button>
-          <button
-            onClick={() => setAgentsOpen(!agentsOpen)}
-            className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all border ${
-              agentsOpen
-                ? "bg-indigo-500/20 border-indigo-500/40 text-indigo-300"
-                : "glass border-white/20 text-gray-300 hover:bg-white/10"
-            }`}
-          >
-            <Bot size={16} /> AI Agents
-          </button>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <button onClick={() => setShowTags(true)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs glass border-white/20 text-gray-300 hover:bg-white/10 transition-all">
+          <button onClick={() => setShowTags(true)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs bg-surface border border-border text-text-muted hover:bg-surface-hover transition-all">
             <Tags size={13} /> Manage tags
           </button>
           <div className="relative inline-flex">
             <button
               onClick={() => void handleExport("json")}
               disabled={!!exporting || content.length === 0}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-l-xl text-xs glass border-white/20 text-gray-300 hover:bg-white/10 transition-all disabled:opacity-40"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-l-xl text-xs bg-surface border border-border text-text-muted hover:bg-surface-hover transition-all disabled:opacity-40"
               title="Export as JSON"
             >
               {exporting ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
               Export
             </button>
-            <div className="border-l border-white/10">
+            <div className="border-l border-border">
               <select
                 value=""
                 onChange={(e) => {
@@ -391,20 +376,20 @@ export const DashboardPage: React.FC = () => {
                   if (v) void handleExport(v as "csv" | "markdown");
                 }}
                 disabled={content.length === 0}
-                className="h-full bg-transparent text-xs text-gray-400 px-1.5 py-2 rounded-r-xl appearance-none cursor-pointer disabled:opacity-40 focus:outline-none"
+                className="h-full bg-transparent text-xs text-text-muted px-1.5 py-2 rounded-r-xl appearance-none cursor-pointer disabled:opacity-40 focus:outline-none"
                 aria-label="Export format"
               >
-                <option value="" className="bg-gray-900">▾</option>
-                <option value="json" className="bg-gray-900">JSON</option>
-                <option value="csv" className="bg-gray-900">CSV</option>
-                <option value="markdown" className="bg-gray-900">Markdown</option>
+                <option value="" className="bg-surface">▾</option>
+                <option value="json" className="bg-surface">JSON</option>
+                <option value="csv" className="bg-surface">CSV</option>
+                <option value="markdown" className="bg-surface">Markdown</option>
               </select>
             </div>
           </div>
           <button
             onClick={() => fileRef.current?.click()}
             disabled={importing}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs glass border-white/20 text-gray-300 hover:bg-white/10 transition-all disabled:opacity-40"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs bg-surface border border-border text-text-muted hover:bg-surface-hover transition-all disabled:opacity-40"
             title="Import items from a JSON export"
           >
             {importing ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
@@ -414,17 +399,17 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {bulkMode && (
-          <div className="flex flex-wrap items-center gap-2 bg-indigo-500/10 border border-indigo-500/30 rounded-xl px-3 py-2.5">
-            <span className="text-sm text-indigo-300 font-medium mr-auto flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-2 bg-accent/5 border border-accent/20 rounded-xl px-3 py-2.5">
+            <span className="text-sm text-accent font-medium mr-auto flex items-center gap-1.5">
               <ClipboardList size={15} /> {selected.size} selected
             </span>
             <button
               onClick={() => setSelected(new Set(content.map((c) => c._id)))}
-              className="px-2.5 py-1.5 rounded-lg text-xs glass border-white/20 text-gray-300 hover:bg-white/10 transition-all"
+              className="px-2.5 py-1.5 rounded-lg text-xs bg-surface border border-border text-text-muted hover:bg-surface-hover transition-all"
             >
               Select all
             </button>
-            <button onClick={bulkClear} className="px-2.5 py-1.5 rounded-lg text-xs glass border-white/20 text-gray-300 hover:bg-white/10 transition-all">
+            <button onClick={bulkClear} className="px-2.5 py-1.5 rounded-lg text-xs bg-surface border border-border text-text-muted hover:bg-surface-hover transition-all">
               Clear
             </button>
             <div className="flex gap-1.5">
@@ -432,7 +417,7 @@ export const DashboardPage: React.FC = () => {
                 value={bulkTagName}
                 onChange={(e) => setBulkTagName(e.target.value)}
                 placeholder="# tag to add"
-                className="w-36 bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+                className="w-36 input-field text-xs py-1.5 px-2.5"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleBulkTag();
                 }}
@@ -440,7 +425,7 @@ export const DashboardPage: React.FC = () => {
               <button
                 onClick={handleBulkTag}
                 disabled={!bulkTagName.trim() || bulkBusy || selected.size === 0}
-                className="px-2.5 py-1.5 rounded-lg text-xs bg-indigo-500/30 border border-indigo-500/40 text-indigo-200 hover:bg-indigo-500/40 transition-all disabled:opacity-40"
+                className="px-2.5 py-1.5 rounded-lg text-xs bg-accent/20 border border-accent/30 text-accent hover:bg-accent/30 transition-all disabled:opacity-40"
               >
                 {bulkBusy ? <Loader2 size={12} className="animate-spin" /> : <TagIcon />}
               </button>
@@ -448,14 +433,14 @@ export const DashboardPage: React.FC = () => {
             <button
               onClick={() => handleBulkFavorite(true)}
               disabled={bulkBusy || selected.size === 0}
-              className="px-2.5 py-1.5 rounded-lg text-xs glass border-white/20 text-amber-300 hover:bg-amber-500/10 transition-all disabled:opacity-40"
+              className="px-2.5 py-1.5 rounded-lg text-xs bg-surface border border-border text-text-muted hover:bg-surface-hover transition-all disabled:opacity-40"
             >
               <Star size={13} className="inline -mt-0.5" /> Favorite
             </button>
             <button
               onClick={() => handleBulkDelete()}
               disabled={bulkBusy || selected.size === 0}
-              className="px-2.5 py-1.5 rounded-lg text-xs bg-red-500/20 border border-red-500/40 text-red-300 hover:bg-red-500/30 transition-all disabled:opacity-40"
+              className="px-2.5 py-1.5 rounded-lg text-xs bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-500/20 transition-all disabled:opacity-40"
             >
               <Trash2 size={13} className="inline -mt-0.5" /> Delete
             </button>
@@ -474,24 +459,22 @@ export const DashboardPage: React.FC = () => {
       </div>
 
       {loading && content.length === 0 ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full" />
-        </div>
+        <DashboardSkeleton />
       ) : emptyDashboard ? (
         <div className="flex flex-col items-center justify-center h-64 sm:h-80 text-center">
           <div className="text-5xl sm:text-6xl mb-4">🧠</div>
-          <p className="text-gray-400 font-medium">Your brain is empty</p>
-          <p className="text-gray-600 text-sm mt-1 px-4">
+          <p className="text-text-muted font-medium">Your brain is empty</p>
+          <p className="text-text-faint text-sm mt-1 px-4">
             Start capturing knowledge — save tweets, videos, docs, links and notes.
           </p>
           <div className="flex flex-wrap justify-center gap-2 mt-5">
-            <button onClick={openAdd} className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white transition-all">
+            <button onClick={openAdd} className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold bg-accent text-accent-text hover:bg-accent-hover transition-all">
               <Plus size={15} /> Add your first item
             </button>
-            <button onClick={() => setAgentsOpen(true)} className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium glass border-white/20 text-gray-300 hover:bg-white/10 transition-all">
-              <Sparkles size={15} /> Try AI agents
+            <button onClick={() => setAgentsOpen(true)} className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium bg-surface border border-border text-text-muted hover:bg-surface-hover transition-all">
+              <MessageCircle size={15} /> Ask Nuro
             </button>
-            <button onClick={() => setShowTags(true)} className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium glass border-white/20 text-gray-300 hover:bg-white/10 transition-all">
+            <button onClick={() => setShowTags(true)} className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium bg-surface border border-border text-text-muted hover:bg-surface-hover transition-all">
               <Tags size={15} /> Manage tags
             </button>
           </div>
@@ -499,9 +482,9 @@ export const DashboardPage: React.FC = () => {
       ) : content.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-64 sm:h-80 text-center">
           <div className="text-5xl sm:text-6xl mb-4">🔍</div>
-          <p className="text-gray-400 font-medium">No matching items found</p>
-          <p className="text-gray-600 text-sm mt-1 px-4">Try adjusting your search or filters.</p>
-          <button onClick={handleClearSearch} className="mt-4 px-4 py-2 rounded-xl text-sm glass border-white/20 text-gray-300 hover:bg-white/10 transition-all">
+          <p className="text-text-muted font-medium">No matching items found</p>
+          <p className="text-text-faint text-sm mt-1 px-4">Try adjusting your search or filters.</p>
+          <button onClick={handleClearSearch} className="mt-4 px-4 py-2 rounded-xl text-sm bg-surface border border-border text-text-muted hover:bg-surface-hover transition-all">
             Clear filters
           </button>
         </div>
@@ -522,7 +505,7 @@ export const DashboardPage: React.FC = () => {
               <button
                 onClick={handleLoadMore}
                 disabled={loading}
-                className="px-5 py-2.5 rounded-xl text-sm font-semibold glass border-white/20 text-gray-200 hover:bg-white/10 transition-all disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-surface border border-border text-text-muted hover:bg-surface-hover transition-all disabled:opacity-50"
               >
                 {loading ? "Loading..." : `Load more (${pagination.total - content.length} remaining)`}
               </button>
@@ -543,7 +526,6 @@ export const DashboardPage: React.FC = () => {
           onClose={() => setShowShare(false)}
         />
       )}
-      <AgentPanel />
     </Layout>
   );
 };

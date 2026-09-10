@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Brain, Eye, EyeOff, Loader2, CheckCircle2 } from "lucide-react";
 import { authAPI } from "../api/axios";
+import { useThemeStore } from "../store/themeStore";
 
 export const ResetPasswordPage: React.FC = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const token = params.get("token") ?? "";
+  const { theme, toggle } = useThemeStore();
 
   const [form, setForm] = useState({ password: "", confirm: "" });
   const [showPass, setShowPass] = useState(false);
@@ -41,40 +43,40 @@ export const ResetPasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-bg">
       <div className="w-full max-w-md animate-fade-in">
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-              <Brain className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 rounded-2xl bg-accent flex items-center justify-center">
+              <Brain className="w-6 h-6 text-accent-text" />
             </div>
             <h1 className="text-3xl font-bold gradient-text">Second Brain</h1>
           </div>
         </div>
 
-        <div className="glass rounded-3xl p-6 sm:p-8">
+        <div className="bg-surface border border-border rounded-3xl p-6 sm:p-8">
           {done ? (
             <div className="text-center py-4">
-              <CheckCircle2 size={40} className="mx-auto mb-4 text-green-400" />
-              <h2 className="text-lg font-semibold text-white mb-2">Password changed</h2>
-              <p className="text-sm text-gray-400 mb-5">You can now sign in with your new password.</p>
+              <CheckCircle2 size={40} className="mx-auto mb-4 text-emerald-500" />
+              <h2 className="text-lg font-semibold text-text mb-2">Password changed</h2>
+              <p className="text-sm text-text-muted mb-5">You can now sign in with your new password.</p>
               <button onClick={() => navigate("/signin")} className="w-full btn-primary py-2.5">
                 Go to sign in
               </button>
             </div>
           ) : (
             <>
-              <h2 className="text-xl font-semibold text-white mb-6">Choose a new password</h2>
+              <h2 className="text-xl font-semibold text-text mb-6">Choose a new password</h2>
 
               {error && (
-                <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm break-words">
+                <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-sm break-words">
                   {error}
                 </div>
               )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">New password</label>
+                  <label className="block text-sm font-medium text-text-muted mb-2">New password</label>
                   <div className="relative">
                     <input
                       type={showPass ? "text" : "password"}
@@ -88,7 +90,7 @@ export const ResetPasswordPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setShowPass((s) => !s)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-text-faint hover:text-text"
                       aria-label={showPass ? "Hide password" : "Show password"}
                     >
                       {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -96,7 +98,7 @@ export const ResetPasswordPage: React.FC = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Confirm new password</label>
+                  <label className="block text-sm font-medium text-text-muted mb-2">Confirm new password</label>
                   <input
                     type={showPass ? "text" : "password"}
                     minLength={8}
@@ -112,14 +114,18 @@ export const ResetPasswordPage: React.FC = () => {
                 </button>
               </form>
 
-              <p className="text-center text-gray-400 text-sm mt-6">
-                <Link to="/signin" className="text-indigo-400 hover:text-indigo-300 font-medium">
+              <p className="text-center text-text-muted text-sm mt-6">
+                <Link to="/signin" className="text-text font-medium hover:underline">
                   Sign in
                 </Link>
               </p>
             </>
           )}
         </div>
+
+        <button onClick={toggle} className="mt-4 mx-auto block text-xs text-text-faint hover:text-text">
+          {theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+        </button>
       </div>
     </div>
   );
