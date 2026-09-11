@@ -15,6 +15,7 @@ import aiRoutes from "./routes/aiRoutes";
 import agentRoutes from "./routes/agentRoutes";
 import tagRoutes from "./routes/tagRoutes";
 import userRoutes from "./routes/userRoutes";
+import captureRoutes from "./routes/captureRoutes";
 import { errorHandler, notFound } from "./middlewares/errorHandler";
 import "./config/passport";
 
@@ -102,6 +103,9 @@ app.use("/api/tags", contentLimiter, tagRoutes);
 
 app.use("/api/v1/user", contentLimiter, userRoutes);
 app.use("/api/user", contentLimiter, userRoutes);
+
+app.use("/api/v1/capture", contentLimiter, captureRoutes);
+app.use("/api/v1/capture", contentLimiter, captureRoutes);
 
 // Health check - reports DB connectivity for load balancers / uptime monitors
 const healthCheck = async (_: express.Request, res: express.Response) => {

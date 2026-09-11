@@ -11,6 +11,7 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { SharedBrainPage } from "./pages/SharedBrainPage";
 import { useAuthStore } from "./store/authStore";
+import { CapturePage } from "./pages/CapturePage";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
@@ -46,6 +47,7 @@ function App() {
         />
         <Route path="/brain/:hash" element={<SharedBrainPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/save" element={<CapturePage/>}/>
       </Routes>
     </BrowserRouter>
   );
